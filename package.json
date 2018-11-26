@@ -6,6 +6,8 @@
   "author": "Mark Steele <mark@control-alt-del.org>",
   "license": "MIT",
   "dependencies": {
+    "html-entities": "^1.2.1",
+    "lower-case": "^1.1.4"
   },
   "devDependencies": {
     "aws-sdk": "^2.12.0",
@@ -14,7 +16,7 @@
     "chai": "^4.0.2",
     "jsdoc": "^3.4.3",
     "jsdoc-to-markdown": "^3.0.0",
-    "mocha": "^3.2.0",
+    "mocha": "^5.2.0",
     "serverless-offline": "^3.13.3",
     "serverless-plugin-optimize": "^1.0.0-rc.15",
     "sinon": "^2.1.0"

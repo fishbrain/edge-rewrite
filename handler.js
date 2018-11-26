@@ -1,14 +1,19 @@
 'use strict';
 var rules = require('./api/rules.js');
+var wafCheck = require("./waf/waf").wafCheckToBlock;
 
 let rewriteRules;
 
-const applyRules = function(e) {
-  const req = e.Records[0].cf.request;    
+const applyRules = function (e) {
+  if (wafCheck(e)) {
+    // 403?
+    return { 'res': { status: '403', statusDescription: 'Forbidden' } };
+  }
+  const req = e.Records[0].cf.request;
   const uri = req.uri;
 
   return rewriteRules.reduce((acc, rule) => {
-   
+
     if (acc.skip == true) {
       return acc;
     }
@@ -36,12 +41,12 @@ const applyRules = function(e) {
     }
     // Gone
     if (rule.gone) {
-      return {'res': {status: '410',statusDescription: 'Gone'},'skip': rule.last};
+      return { 'res': { status: '410', statusDescription: 'Gone' }, 'skip': rule.last };
     }
 
     // Forbidden
     if (rule.forbidden) {
-      return { 'res': { status: '403', statusDescription: 'Forbidden' }, 'skip': rule.last};
+      return { 'res': { status: '403', statusDescription: 'Forbidden' }, 'skip': rule.last };
     }
 
     // Redirect
@@ -69,7 +74,7 @@ const applyRules = function(e) {
       return acc;
     }
 
-  }, { 'res': Object.assign({},e.Records[0].cf.request)});
+  }, { 'res': Object.assign({}, e.Records[0].cf.request) });
 }
 module.exports.applyRules = applyRules;
 
@@ -78,6 +83,6 @@ module.exports.handler = (e, ctx, cb) => {
   if (rewriteRules === undefined || process.env.IS_TEST) {
     rewriteRules = rules.parseRules(rules.loadRules());
   }
-  cb(null,applyRules(e).res);
+  cb(null, applyRules(e).res);
 };
 
